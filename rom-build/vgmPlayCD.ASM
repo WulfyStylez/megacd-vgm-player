@@ -1,7 +1,8 @@
 ; ----------------------------------------
-; MEGA CD VGM PLAYER V0.80
+; MEGA CD VGM PLAYER V0.96
 ; Based on MEGA DRIVE VGM PLAYER V3.30 by Dead Fish Software
 ; (http://mjsstuf.x10host.com/pages/vgmPlay/vgmPlay.htm)
+; ported and modified by WulfyStylez, 2k17
 ; ----------------------------------------
 
 PBASE =     $200000 ; program base (Word RAM)
@@ -13,7 +14,7 @@ START:
     
     ; banner name, max 33 characters!
     ORG (PBASE+$10D8) 
-    dc.b 'MEGA CD VGM PLAYER V0.95',0xD, 0xA, 0
+    dc.b 'MEGA CD VGM PLAYER V0.96',0xD, 0xA, 0
     
     ORG (PBASE+$20)
     ; fix up 16-bit jump tables
