@@ -1,4 +1,5 @@
-# Mega CD VGM Player v0.95
+Mega CD VGM Player v0.95
+
 MegaCD/SegaCD player for Mega Drive VGM files.
 Based on Mega Drive VGM Player v3.30 by Dead Fish Software
 http://mjsstuf.x10host.com/pages/vgmPlay/vgmPlay.htm
