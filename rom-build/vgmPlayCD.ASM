@@ -9,8 +9,13 @@ PBASE =     $200000 ; program base (Word RAM)
 RBASE =     $FF1000 ; ram base (safe area for megacd)
 
     ORG PBASE
+    ; layer our changes over the base (at the moment partially modified) ROM
 START:
     incbin 'vgmPlayCD.bin'
+    
+    ; jump to actual ROM start from what was the header
+    ORG PBASE
+    bra (PBASE+$200)
     
     ; banner name, max 33 characters!
     ORG (PBASE+$10D8) 
