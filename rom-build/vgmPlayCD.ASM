@@ -1,5 +1,5 @@
 ; ----------------------------------------
-; MEGA CD VGM PLAYER V0.96
+; MEGA CD VGM PLAYER V0.97
 ; Based on MEGA DRIVE VGM PLAYER V3.30 by Dead Fish Software
 ; (http://mjsstuf.x10host.com/pages/vgmPlay/vgmPlay.htm)
 ; ported and modified by WulfyStylez, 2k17
@@ -19,7 +19,7 @@ START:
     
     ; banner name, max 33 characters!
     ORG (PBASE+$10D8) 
-    dc.b 'MEGA CD VGM PLAYER V0.96',0xD, 0xA, 0
+    dc.b 'MEGA CD VGM PLAYER V0.97x',0xD, 0xA, 0
     
     ORG (PBASE+$20)
     ; fix up 16-bit jump tables
@@ -40,18 +40,18 @@ fix_vgm_addr: ; bsr here
     add.l #PBASE, a0
     rts
     
-exception_ret:
+vblank_handler:
+    jsr $360    ; sendInt2ToSubCpu, otherwise cd bios calls will freeze at vblank
     rte
     
 exit: ; cleanup and return to ipl
-    jmp $ff0000 ; jump back to sega security ipl (slo is at $FF0584)
+    jmp $FF0584 ; jump back to sega loader
 
+    ; code to run immediately after starting
     ORG (PBASE+$200)
-    ; set the h + v vectors from scd rom to a return
-    lea ($fffd08), a0
-    move.l #exception_ret, (a0)
-    add #$6, a0
-    move.l #exception_ret, (a0)
+    ; setup vblank
+    lea.l vblank_handler(pc), a1
+    jsr $368 ; set vblank addr
     
 
     ORG (PBASE+$139C)

@@ -1,9 +1,21 @@
+
+; some ez vdp macros
+VDP_DATA	= $C00000
+VDP_CONTROL = $C00004
 	org	$FF0584
 Start:
+	; set up vblank routine to be cd bios compatible
+	lea	VintBios(pc), a1
+	jsr $368
+	
+	; do some cd bios calls before changing VBlank interrupt
+	jsr $318 ; disable horizontal interrupts
+	jsr $2AC ; loadDefaultVdpRegs
+	jsr $2A0 ; clearAllVram
+	jsr $328 ; loadDefaultFontAndAddress
+	
 	lea	Vint(pc), a1		;Load Address for VBL routine
-	jsr     $368		;make appropriate change in Interrupt Jump table
-
-
+	jsr $368		;make appropriate change in Interrupt Jump table
 
 	move.b	#$40, $a10009	;set up I/O Port
 
@@ -19,15 +31,18 @@ Wait2:
 	tst.b	$A1200F		;wait for sub CPU to finish
 	bne	Wait2
 
-	move.l	#$c00000, a2
-	move.l	#$c00004, a3
+	move.l	#VDP_DATA, a2
+	move.l	#VDP_CONTROL, a3
 
-	move.w  #$8004, (a3)	;disable horizontal interrupts
-	move.w  #$8f02, (a3)	;set Auto Increment to an appropriate value
-
-
-
-
+	move.w  #$8f02, (a3)	;set auto-increment to 2 to allow long writes
+	
+	; load palette
+	lea Palette, a0
+	move.l #31, d0  ; 32 words
+	move.l #$C0000003, (a3) ; write to cram from address 0
+palette_load_loop:
+	move.l (a0)+, (a2)
+	dbra d0, palette_load_loop
 
 
 DisplayList:	
@@ -199,7 +214,7 @@ DisplayFile:
 	move.w	#0, (Reload)
 	
 	lea	VintText(pc), a1		;Load Address for VBL routine
-	jsr     $368		;make appropriate change in Interrupt Jump table
+	jsr	 $368		;make appropriate change in Interrupt Jump table
 
 
 	move.w  #$8124, (a3)	;turn off display
@@ -250,7 +265,10 @@ StartOver:
 	move.w	#0, (Reload)
 	bra	Start
 
-
+; Vint we can use with the CD BIOS
+VintBios:
+	jsr $360	; sendInt2ToSubCpu
+	rte
 
 VintText:
 	move.b	#1, $A12000	;trigger interrupt on Sub CPU
@@ -285,7 +303,6 @@ GoBack:
 	move.b	#1, (Reload)
 	move.b	#4, (Load)
 	rte
-
 
 
 Vint:
@@ -448,8 +465,15 @@ Write:
 	dbra	d6, Write
 
 	rts
-    
-    ; Round the output + security code + header to 1000h bytes
-    org	$FF0DFC
-    dc.l 0
-    
+
+; palette after sega logo on NTSC-U
+Palette:
+	dc.w 0, $0EE8, 0, $0EE4, $0EE0, $0EC0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	dc.w 0, $0EC0, 0, $0EE0, $0EC0, $0EA0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	dc.w 0, $0E80, 0, $0EC0, $0EA0, $0E80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	dc.w 0, 0, $0C22, $0E44, $0E66, $0E88, $0EEE, $0AAA, $0888, $0444, $08AE, $6A08, $0E03, $0800, $0300, $2000, $0E20
+	
+	; Round the output + security code + header to 1000h bytes
+	org	$FF0DFC
+	dc.l 0
+	

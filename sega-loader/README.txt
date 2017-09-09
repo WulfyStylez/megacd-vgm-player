@@ -1,5 +1,5 @@
 This is a fork of Mike Pavone's Sega Loader 1.0, see here https://www.retrodev.com/slo.html
-This was forked to integrate it into a build system, and to (eventually?) tweak a few features for consistency (e.g. loading in fonts from the BIOS directly instead of requiring a security logo relaunch).
+This was forked to integrate it into a build system, and to tweak a few features for consistency.
 
 This outputs a .bin for all 3 regions ready to be used as the first 16 sectors of a Sega/Mega CD image, featuring SLO. You can integrate this with an iso9660 filesystem using mkisofs -G [SLO-xxx.img].
 
