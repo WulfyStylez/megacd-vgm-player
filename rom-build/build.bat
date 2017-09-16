@@ -1,4 +1,4 @@
 @echo off
-echo Building modified vgmPlay...
-..\tools\asm68k /o op+ /o os+ /o ow+ /o oz+ /o oaq+ /o osq+ /o omq+ /o ae- /p vgmPlayCD.ASM, vgmPlay.dat
+echo Building vgmPlayCD...
+..\tools\asm68k /p /o op+ /o os+ /o ow+ /o ws+ /o oz+ /o oaq+ /o osq+ /o omq+ /o ae- vgmPlayCD.ASM, vgmPlay.dat
 echo.
