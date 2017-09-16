@@ -976,24 +976,24 @@ branches_2:	dc.l loc_2014BA, loc_2014C2, loc_2014CE, loc_20141A, loc_201424,	loc
 main_loop:
 		lea	vgm_data(pc),a1
 
-        ; get song data offset. these are from base of rom in data, but let's
-        ; zero-base the offsets for easier testing
+        ; HACK: vgmPlay.exe inserts offsets from rom+0 when creating vgc data.
+        ; This will differ between builds, and I simply append binary data to
+        ; vgcPlay.dat to test, so let's do some math to nullify these offsets.
+        
 		move.w	(current_track).l,d0
 		lsl.w	#2,d0 
-        movea.l	(a1,d0.w),a0    ; get target vgc offset from index
+        movea.l	(a1,d0.w),a0    ; get target vgc offset from index of offsets
         move.l	4(a1),d1        ; get base offset of vgm data by looking at first entry
-        suba.l d1, a0
+        suba.l d1, a0   ; a0 is now offset from end of entry table
         
-        ; a0 is offset from start of vgc's
-        ; get entry table size and calculate memory addr
-        move.l (a1), d0 ; get number of entries
-        addi #1, d0 ; add one for index entry
-        lsl #2, d0  ; entry table size in d0
+        ; get size of entry table, add this to a0
+        move.l (a1), d0
+        addi #1, d0
+        lsl #2, d0
+        adda.l d0, a0
         
-        adda.l d0, a0 ; offset from vgc data start in a0
+        ; add vgm_data offset, and we're good!
         adda.l a1, a0
-        
-        ;addi.l #(vgm_data+$10), a0
         
 		tst.w	(word_2001F8).l
 		beq	loc_201768
